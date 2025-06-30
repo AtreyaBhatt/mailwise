@@ -68,7 +68,7 @@ uvicorn main:app --reload
 ```bash
 cd frontend
 npm install
-npm start
+npm run dev
 ```
 
 Make sure React is served on port `5173`, or update redirect URLs accordingly.
