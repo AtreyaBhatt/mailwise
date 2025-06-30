@@ -1,0 +1,124 @@
+:root {
+  --bg: #181a1b;
+  --fg: #f7f7fa;
+  --card: #232526;
+  --input: #26282a;
+  --border: #444;
+  --accent: #fd5c63;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 800px;
+  margin: 2rem auto;
+  background: var(--card);
+  border-radius: 14px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 2px 24px #0008;
+}
+
+h1 {
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: var(--accent);
+}
+
+.form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.form input {
+  background: var(--input);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 1em;
+}
+
+.form button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-size: 1em;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.form button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.email-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: var(--input);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.email-table th, .email-table td {
+  padding: 0.8rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.email-table th {
+  background: var(--card);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.email-table tr:last-child td {
+  border-bottom: none;
+}
+
+.error {
+  color: #fd5c63;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+footer {
+  margin-top: 2.5rem;
+  text-align: center;
+  color: #aaa;
+  font-size: 0.95em;
+}
+
+.loader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.spinner {
+  width: 22px;
+  height: 22px;
+  border: 3px solid #333;
+  border-top: 3px solid var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

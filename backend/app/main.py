@@ -1,107 +1,69 @@
-# Import FastAPI framework and exception handling
 from fastapi import FastAPI, HTTPException
-# Import CORS middleware to allow frontend-backend communication
 from fastapi.middleware.cors import CORSMiddleware
-# Import Pydantic's BaseModel for request and response validation
 from pydantic import BaseModel
-# Import typing for type hints
 from typing import List
-# Import the EmailRetriever class for retrieving emails
-from app.services.mail_utils import EmailRetriever  # Import your retriever
+from app.services.mail_utils import EmailRetriever
+from app.services.preprocess_utils import prepare_email_for_llm
+from app.services.llm_utils import summarize_and_score_email
+import traceback
 
-# Initialize the FastAPI application with metadata
 app = FastAPI(
     title="Email Summarizer API",
-    description="Backend for retrieving, prioritizing, and summarizing emails.",
+    description="Production backend for retrieving, cleaning, summarizing, and prioritizing emails using Gemini 1.5 Flash.",
     version="1.0.0"
 )
 
-# Add CORS middleware to allow requests from the React frontend (localhost:3000)
+# CORS configuration for secure frontend-backend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Update this in production!
+    allow_origins=["*"],  # Set your production frontend domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- Pydantic Models ---
-
+# Request model for retrieving emails
 class EmailRequest(BaseModel):
-    """
-    Model for the request body when retrieving emails.
-    Includes user email, password, and the number of emails to fetch.
-    """
     email: str
     password: str
     limit: int = 10
 
-class EmailResponse(BaseModel):
-    """
-    Model for the response body for each processed email.
-    Includes email metadata, assigned priority, and summary.
-    """
-    id: str
-    subject: str
+# Response model including summary and priority
+class GeminiEmailResponse(BaseModel):
     sender: str
+    subject: str
     body: str
-    priority: int
     summary: str
-
-# --- Helper functions ---
-
-def assign_priority(email_data):
-    """
-    Assigns a simple priority to an email.
-    Returns 2 if 'urgent' is in the subject, otherwise 1.
-    """
-    subject = email_data.get("subject", "").lower()
-    return 2 if "urgent" in subject else 1
-
-def summarize_email(body):
-    """
-    Summarizes the email body by returning the first 20 words.
-    Adds '...' if the body is longer than 20 words.
-    """
-    return " ".join(body.split()[:20]) + ("..." if len(body.split()) > 20 else "")
-
-# --- Routes ---
+    priority: int
 
 @app.get("/")
 def read_root():
-    """
-    Health check endpoint.
-    Returns a simple status message.
-    """
-    return {"message": "Email Summarizer API is running!"}
+    return {"message": "Email Summarizer API is running in production."}
 
-@app.post("/retrieve-emails", response_model=List[EmailResponse])
+@app.post("/retrieve-emails", response_model=List[GeminiEmailResponse])
 def retrieve_emails_endpoint(request: EmailRequest):
     """
-    Endpoint to retrieve emails, assign priority, and summarize each email.
-    Uses the EmailRetriever utility to fetch emails from the user's inbox.
+    Retrieve emails, clean them, summarize, and assign priority using Gemini 1.5 Flash.
+    All Gemini API calls are securely made from the backend.
     """
     retriever = EmailRetriever(request.email, request.password)
     try:
-        # Connect to the mail server
         retriever.connect()
-        # Fetch the specified number of emails
         emails = retriever.fetch_emails(request.limit)
-        # Close the connection to the mail server
         retriever.close()
-        processed_emails = []
-        # Process each email: assign priority and generate summary
-        for mail in emails:
-            processed_emails.append(EmailResponse(
-                id=mail["id"],
-                subject=mail["subject"],
-                sender=mail["sender"],
-                body=mail["body"],
-                priority=assign_priority(mail),
-                summary=summarize_email(mail["body"])
+        results = []
+        for email in emails:
+            cleaned = prepare_email_for_llm(email)
+            gemini_result = summarize_and_score_email(cleaned)
+            results.append(GeminiEmailResponse(
+                sender=cleaned["sender"],
+                subject=cleaned["subject"],
+                body=cleaned["body"],
+                summary=gemini_result["summary"],
+                priority=gemini_result["priority"]
             ))
-        # Return the processed emails as the response
-        return processed_emails
+        return results
     except Exception as e:
-        # Handle errors and return a 500 Internal Server Error
+        import traceback
+        print(traceback.format_exc())  # This will print the full error in your terminal
         raise HTTPException(status_code=500, detail=str(e))
