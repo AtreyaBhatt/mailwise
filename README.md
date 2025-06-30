@@ -20,7 +20,7 @@ Built with **FastAPI**, **React**, and **OAuth2**, this project demonstrates sec
 
 | Frontend | Backend | AI / NLP | Auth |
 |----------|---------|----------|------|
-| React    | FastAPI | Custom LLM-based summarizer | Google OAuth 2.0 |
+| React    | FastAPI | Google Gemini | Google OAuth 2.0 |
 | Axios    | Starlette | Python | Authlib |
 | Inter UI | CORS Middleware | OpenAI / Local LLM (configurable) | |
 
