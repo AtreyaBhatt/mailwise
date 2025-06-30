@@ -1,0 +1,60 @@
+# ===================
+# 📁 Root
+# ===================
+node_modules
+.env
+.env.local
+.log
+.DS_Store
+.vscode
+.swp
+
+# ===================
+# 📁 frontend (React + Vite)
+# ===================
+frontendnode_modules
+frontenddist
+frontend.vite
+frontend.vite-temp
+frontend.env
+frontend.DS_Store
+
+# ===================
+# 📁 backend (Python)
+# ===================
+__pycache__
+.py[cod]
+.sqlite3
+.db
+.egg-info
+.bak
+.tmp
+.log
+backend.env
+backend.DS_Store
+
+# Virtual environments
+venv
+.venv
+
+# Unit test cache
+backend.pytest_cache
+backendtests__pycache__
+
+# Coverage reports
+coverage
+htmlcov
+.tox
+.nox
+.pytest_cache
+
+# ===================
+# 🧪 Miscellaneous
+# ===================
+.tar.gz
+.zip
+.rar
+
+# Ignore IDE settings (if using VSCode or JetBrains)
+.idea
+.code-workspace
